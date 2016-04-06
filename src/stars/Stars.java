@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package stars;
+import java.util.ArrayList;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -37,7 +38,13 @@ public class Stars extends Application
         sc.setFill(null);
         GraphicsContext gc = c.getGraphicsContext2D(); 
         
-        drawStar(gc, sc, 5, 250);
+        //This method draws a star
+        //drawStar(gc, sc, 10, 250);
+        
+        //This method draws the dragon curve
+        //Point2D start = new Point2D(250, 250);
+        //drawDragon(gc, start, 17, 1);
+        
         stage.setScene(sc);
         stage.show();
     }
@@ -76,6 +83,39 @@ public class Stars extends Application
             ind = next;
         }
         gc.stroke();
+    }
+    
+    public void drawDragon(GraphicsContext gc, Point2D start, int size, int len)
+    {
+        Point2D next = new Point2D(start.getX() + len, start.getY());
+        size--;
+        ArrayList<Point2D> al = new ArrayList<>(); 
+        al.add(start);
+        al.add(next);
+        int turnPointIndex = al.size() - 1;
+        
+        for(int i=0; i<size;i++)
+        {
+            Point2D pivot = al.get(turnPointIndex);
+            for(int j = turnPointIndex - 1; j >= 0; j-- )
+            {
+                Point2D p = al.get(j);
+                double dx = -1 * (p.getY() - pivot.getY());
+                double dy = (p.getX() - pivot.getX());
+                Point2D n = new Point2D(pivot.getX() + dx, pivot.getY() + dy);
+                al.add(n);
+            }
+            turnPointIndex = al.size() - 1;
+        }
+        
+        gc.beginPath();
+        gc.moveTo(start.getX(), start.getY());
+        for(int i=1; i<al.size(); i++)
+        {
+            gc.lineTo(al.get(i).getX(), al.get(i).getY());
+        }
+        gc.stroke();
+        
     }
     
     public static void main(String[] args) 
