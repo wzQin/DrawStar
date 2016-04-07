@@ -15,6 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
+
 /**
  *
  * @author Victor
@@ -28,28 +29,32 @@ public class Stars extends Application
         stage.setTitle("Star");
         Pane root = new Pane();
         
-        int cLen = 500;
-        int cWid = 500;
+        int cLen = 800;
+        int cWid = 1000;
         
-        Canvas c = new Canvas(cLen, cWid);
+        Canvas c = new Canvas(cWid, cLen);
         root.getChildren().add(c);
         
-        Scene sc = new Scene(root,cLen,cWid);
+        Scene sc = new Scene(root,cWid, cLen);
         sc.setFill(null);
         GraphicsContext gc = c.getGraphicsContext2D(); 
         
-        //This method draws a star
-        //drawStar(gc, sc, 10, 250);
+        //This method draws a star in the middle of your screen
+        //drawStar(gc, sc, 30, 250);
+        
+        Point2D start = new Point2D(250, 250);
         
         //This method draws the dragon curve
-        //Point2D start = new Point2D(250, 250);
-        //drawDragon(gc, start, 17, 1);
+        //drawDragon(gc, start, 18, 1);
+        
+        //This method draws the Levy C curve
+        //drawC(gc, start, 20, 0.5);
         
         stage.setScene(sc);
         stage.show();
     }
     
-    public void drawStar(GraphicsContext gc, Scene sc, int size, int rad)
+    public void drawStar(GraphicsContext gc, Scene sc, int size, double rad)
     {
         double theta = 0;
         
@@ -85,7 +90,7 @@ public class Stars extends Application
         gc.stroke();
     }
     
-    public void drawDragon(GraphicsContext gc, Point2D start, int size, int len)
+    public void drawDragon(GraphicsContext gc, Point2D start, int size, double len)
     {
         Point2D next = new Point2D(start.getX() + len, start.getY());
         size--;
@@ -116,6 +121,47 @@ public class Stars extends Application
         }
         gc.stroke();
         
+    }
+    
+    public void drawC(GraphicsContext gc, Point2D start, int size, double length)
+    {
+        double theta = PI/4;
+        Point2D next = new Point2D(start.getX() + length, start.getY());
+        size--;
+        ArrayList<Point2D> al = new ArrayList<>();
+        al.add(start);
+        al.add(next);
+        
+        int pivotIndex = al.size() - 1;
+        for(int j = 0; j<size; j++)
+        {
+            for(int i = 1; i<al.size(); i++)
+            {
+                Point2D pivot = al.get(0);
+                double x = al.get(i).getX() - pivot.getX();
+                double y = al.get(i).getY() - pivot.getY();
+                double dx = cos(theta)*x - sin(theta)*y;
+                double dy = sin(theta)*x + cos(theta)*y;
+                Point2D n = new Point2D(pivot.getX() + dx, pivot.getY() + dy);
+                al.set(i,n);
+            }
+
+            for(int i = pivotIndex - 1; i >= 0; i--)
+            {
+                double dx = al.get(pivotIndex).getX() - al.get(i).getX();
+                Point2D n = new Point2D(al.get(pivotIndex).getX() + dx, al.get(i).getY());
+                al.add(n);
+            }
+            pivotIndex = al.size() - 1;
+        }
+        
+        gc.beginPath();
+        gc.moveTo(start.getX(), start.getY());
+        for(int i=1; i<al.size(); i++)
+        {
+            gc.lineTo(al.get(i).getX(), al.get(i).getY());
+        }
+        gc.stroke();
     }
     
     public static void main(String[] args) 
